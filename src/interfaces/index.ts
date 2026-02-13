@@ -1,3 +1,3 @@
-export * from "./bazilian-price.interface"
+export * from "./price.interface"
 export * from "./product.interface"
-export * from "./brazilian-shipping.interface"
+export * from "./shipping.interface"

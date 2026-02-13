@@ -1,4 +1,4 @@
-export interface BrazilianShipping {
+export interface Shipping {
     price?: number
     currency?: "BRL"
     freeShipping?: boolean

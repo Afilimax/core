@@ -1,5 +1,5 @@
-import { BrazilianShipping } from "./brazilian-shipping.interface"
-import { BrazilianPrice } from "./bazilian-price.interface"
+import { Shipping } from "./shipping.interface"
+import { Price } from "./price.interface"
 import { Marketplace } from "../enums"
 
 export interface ScrapedProduct {
@@ -8,8 +8,8 @@ export interface ScrapedProduct {
     title: string
     description?: string
     brand?: string
-    price: BrazilianPrice
-    shipping?: BrazilianShipping
+    price: Price
+    shipping?: Shipping
     rating?: {
         average: number
         totalReviews?: number

@@ -1,4 +1,4 @@
-export interface BrazilianPrice {
+export interface Price {
     value: number
     originalValue?: number
     currency: "BRL"
