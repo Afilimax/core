@@ -48,6 +48,44 @@ const product: ScrapedProduct = {
 }
 ```
 
+### Validação de dados
+
+```typescript
+import { scrapedProductSchema, couponSchema, priceSchema, shippingSchema } from "@afilimax/core"
+
+const product = scrapedProductSchema.parse({
+    marketplace: "Amazon",
+    title: "Produto",
+    price: {
+        value: 10,
+        currency: "BRL"
+    },
+    shipping: {
+        price: 2,
+        currency: "BRL",
+        freeShipping: true
+    },
+    rating: {
+        average: 4,
+        totalReviews: 10
+    },
+    availability: {
+        inStock: true,
+        quantity: 10
+    },
+    images: ["https://example.com/image.jpg"],
+    thumbnails: ["https://example.com/thumbnail.jpg"],
+    categories: ["Categoria"],
+    features: {
+        "Característica": "Valor"
+    },
+    specifications: {
+        "Especificação": "Valor"
+    },
+    scrapedAt: new Date().toISOString()
+})
+```
+
 ## Licença
 
 Este projeto está sob a licença MIT.
