@@ -1,8 +1,8 @@
 export interface Shipping {
-    price?: number
-    currency?: "BRL"
-    freeShipping?: boolean
-    full?: boolean
-    prime?: boolean
-    estimatedDays?: number
+    price: number | null
+    currency: "BRL"
+    freeShipping: boolean | null
+    full: boolean | null
+    prime: boolean | null
+    estimatedDays: number | null
 }

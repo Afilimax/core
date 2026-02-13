@@ -1,10 +1,10 @@
 export interface Price {
     value: number
-    originalValue?: number
+    originalValue: number | null
     currency: "BRL"
-    pixPrice?: number
-    installment?: {
+    pixPrice: number | null
+    installment: {
         count: number
         value: number
-    }
+    } | null
 }
