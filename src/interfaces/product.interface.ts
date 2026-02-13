@@ -24,6 +24,6 @@ export interface ScrapedProduct {
     categories: string[] | null
     features: Record<string, string> | null
     specifications: Record<string, string> | null
-    coupons: Coupon[]
+    coupons: Coupon[] | null
     scrapedAt: string
 }

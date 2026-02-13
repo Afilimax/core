@@ -26,6 +26,6 @@ export const scrapedProductSchema = z.object({
     categories: z.array(z.string()).nullable(),
     features: z.record(z.string(), z.string()).nullable(),
     specifications: z.record(z.string(), z.string()).nullable(),
-    coupons: z.array(couponSchema),
+    coupons: z.array(couponSchema).nullable(),
     scrapedAt: z.string(),
 })
