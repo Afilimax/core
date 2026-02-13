@@ -1,5 +1,2 @@
-function main() {
-    console.log("Hello from core")
-}
-
-main()
+export * from "./interfaces"
+export * from "./enums"
