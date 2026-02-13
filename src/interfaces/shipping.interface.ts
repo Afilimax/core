@@ -4,5 +4,5 @@ export interface Shipping {
     freeShipping: boolean | null
     full: boolean | null
     prime: boolean | null
-    estimatedDays: number | null
+    estimatedTime: string | null
 }
