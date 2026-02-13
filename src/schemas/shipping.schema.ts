@@ -6,5 +6,5 @@ export const shippingSchema = z.object({
     freeShipping: z.boolean().nullable(),
     full: z.boolean().nullable(),
     prime: z.boolean().nullable(),
-    estimatedDays: z.number().nullable(),
+    estimatedTime: z.string().nullable(),
 })
