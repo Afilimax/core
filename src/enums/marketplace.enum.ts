@@ -8,4 +8,5 @@ export enum Marketplace {
     TerabyteShop = "terabyte_shop",
     Kabum = "kabum",
     Pichau = "pichau",
+    MagazineLuiza = "magazine_luiza",
 }
