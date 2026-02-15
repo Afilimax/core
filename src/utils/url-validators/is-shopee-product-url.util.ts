@@ -5,7 +5,7 @@ export function isShopeeProductUrl(url: string) {
 
     const shopeeRegex = new RegExp(
         `^https?://(?:www\\.|s\\.)?(?:${domainPattern})/(?:.+-)?i\\.\\d+\\.\\d+|^https://shp\\.ee/[\\w\\d]+`,
-        "i"
+        "i",
     )
 
     return shopeeRegex.test(url)
