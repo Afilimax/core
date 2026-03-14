@@ -86,6 +86,62 @@ const product = scrapedProductSchema.parse({
 })
 ```
 
+### Provedores de Afiliados
+
+O `AffiliateProvider` é uma classe abstrata fundamental para estender as capacidades de afiliação do ecossistema Afilimax.
+
+```typescript
+import { AffiliateProvider } from "@afilimax/core"
+
+interface CustomOptions {
+    trackingId: string
+}
+
+class MyProvider extends AffiliateProvider<CustomOptions> {
+    name = "Meu Provedor"
+    domains = ["loja-exemplo.com.br"]
+
+    // Implementação obrigatória para gerar o link
+    createAffiliateUrl = async (url: string) => {
+        return `https://link-afiliado.com?id=${this.options.trackingId}&url=${url}`
+    }
+}
+
+const provider = new MyProvider({ trackingId: "user-123" })
+
+// Verifica se uma URL pertence ao provedor
+if (provider.supportsUrl("https://loja-exemplo.com.br/item")) {
+    const affiliateUrl = await provider.createAffiliateUrl("https://loja-exemplo.com.br/item")
+    console.log(affiliateUrl)
+}
+```
+
+### Gerenciamento de Provedores (Encadeamento)
+
+O `AffiliateManager` permite agrupar múltiplos provedores e encontrar automaticamente o correto para uma determinada URL.
+
+```typescript
+import { AffiliateManager } from "@afilimax/core"
+
+const manager = new AffiliateManager([
+    new AmazonProvider(options),
+    new ShopeeProvider(options),
+    new MagaluProvider(options)
+])
+
+// O manager encontrará o provedor correto baseado nos domínios suportados.
+// Caso nenhum provedor suporte a URL, retornará null.
+const url = "https://www.amazon.com.br/dp/B088GHHR6K"
+const affiliateUrl = await manager.createAffiliateUrl(url)
+
+if (affiliateUrl) {
+    console.log("URL de afiliado:", affiliateUrl)
+}
+
+// Você também pode adicionar novos provedores dinamicamente
+manager.use(new CustomProvider())
+```
+
 ## Licença
 
 Este projeto está sob a licença MIT.
