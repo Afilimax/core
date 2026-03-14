@@ -13,5 +13,5 @@ export abstract class AffiliateProvider<TOptions> {
         )
     }
 
-    abstract createAffiliateUrl: (url: string) => Promise<string>
+    abstract createAffiliateUrl(url: string): Promise<string>
 }

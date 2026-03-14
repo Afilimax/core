@@ -102,7 +102,7 @@ class MyProvider extends AffiliateProvider<CustomOptions> {
     domains = ["loja-exemplo.com.br"]
 
     // Implementação obrigatória para gerar o link
-    createAffiliateUrl = async (url: string) => {
+    async createAffiliateUrl(url: string) {
         return `https://link-afiliado.com?id=${this.options.trackingId}&url=${url}`
     }
 }
