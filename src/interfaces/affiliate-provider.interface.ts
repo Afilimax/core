@@ -8,9 +8,7 @@ export abstract class AffiliateProvider<TOptions> {
     supportsUrl(url: string) {
         const hostname = new URL(url).hostname
 
-        return this.domains.some(domain =>
-            hostname === domain || hostname.endsWith(`.${domain}`)
-        )
+        return this.domains.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`))
     }
 
     abstract createAffiliateUrl(url: string): Promise<string>

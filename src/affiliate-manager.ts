@@ -7,7 +7,7 @@ export class AffiliateManager {
      * Encontra o primeiro provedor que suporta a URL fornecida.
      */
     findProvider(url: string): AffiliateProvider<any> | undefined {
-        return this.providers.find(provider => provider.supportsUrl(url))
+        return this.providers.find((provider) => provider.supportsUrl(url))
     }
 
     /**

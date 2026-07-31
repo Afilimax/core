@@ -1,5 +1,6 @@
 export * from "./price.interface"
 export * from "./product.interface"
+export * from "./product-preview.interface"
 export * from "./shipping.interface"
 export * from "./coupon.interface"
 export * from "./affiliate-provider.interface"
