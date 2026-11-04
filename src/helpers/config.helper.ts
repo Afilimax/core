@@ -2,7 +2,7 @@ import { Marketplace } from "../enums"
 
 export const configHelper = {
     domains: {
-        [Marketplace.Amazon]: ["amazon.com", "amazon.com.br", "amzn.to", "a.co"],
+        [Marketplace.Amazon]: ["amazon.com", "amazon.com.br", "amzn.to", "a.co", "link.amazon"],
         [Marketplace.MercadoLivre]: ["mercadolivre.com.br", "mercadolivre.com"],
         [Marketplace.Shopee]: ["shopee.com.br", "shopee.com"],
         [Marketplace.AliExpress]: ["aliexpress.com"],
