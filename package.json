@@ -44,5 +44,13 @@
   },
   "dependencies": {
     "zod": "^4.3.6"
+  },
+  "homepage": "https://afilimax.net",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Afilimax/core.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Afilimax/core/issues"
   }
 }
