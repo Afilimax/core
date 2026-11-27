@@ -152,6 +152,7 @@ manager.use(new CustomProvider())
 ## Licença
 
 Este projeto está sob a licença MIT.
+
 ---
 
 ## Automatize sua operação de afiliados
