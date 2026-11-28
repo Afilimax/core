@@ -7,7 +7,17 @@
 
 # @afilimax/core
 
-Este é o pacote core da Afilimax, ele é responsável por carregar nossas tipagens e enums que são compartilhados por outros pacotes do nosso ecossistema. Somos focados apenas no mercado brasileiro, então, este README é escrito em português.
+Contratos compartilhados do ecossistema Afilimax. O pacote reúne tipos de produtos, enumeração de marketplaces, schemas de validação, validadores de URL e as abstrações usadas para conectar provedores de afiliados.
+
+## Recursos
+
+- Interfaces TypeScript para produtos completos e resultados resumidos de pesquisa.
+- Contratos de preço, frete, disponibilidade, avaliação e cupons.
+- Schemas Zod para validar dados de produtos em tempo de execução.
+- Enum `Marketplace` com identificadores estáveis das lojas.
+- Validadores de URLs de produto para os marketplaces suportados.
+- Classe abstrata `AffiliateProvider` para implementar novos provedores.
+- `AffiliateManager` para selecionar automaticamente o provedor compatível com uma URL.
 
 ## Instalação
 
@@ -15,143 +25,179 @@ Este é o pacote core da Afilimax, ele é responsável por carregar nossas tipag
 npm install @afilimax/core
 ```
 
-## Uso
+O pacote inclui as declarações TypeScript e usa Zod para as validações.
+
+## Como usar
+
+### Definir e validar um produto
 
 ```typescript
-import { Marketplace, Price, Shipping, ScrapedProduct } from "@afilimax/core"
-
-console.log(Marketplace.Amazon)
+import { Marketplace, scrapedProductSchema, type ScrapedProduct } from "@afilimax/core"
 
 const product: ScrapedProduct = {
     marketplace: Marketplace.Amazon,
-    title: "Produto",
+    externalId: "B0D1VHJVS9",
+    title: "Wireless Gaming Mouse",
+    description: "Wireless mouse with programmable buttons",
+    brand: "Example Brand",
     price: {
-        value: 10,
-        currency: "BRL"
+        value: 149.9,
+        originalValue: 199.9,
+        currency: "BRL",
+        pixPrice: 139.9,
+        installment: { count: 3, value: 49.97 },
     },
     shipping: {
-        price: 2,
+        price: 0,
         currency: "BRL",
-        freeShipping: true
+        freeShipping: true,
+        full: null,
+        prime: true,
+        estimatedTime: null,
     },
-    rating: {
-        average: 4,
-        totalReviews: 10
-    },
-    availability: {
-        inStock: true,
-        quantity: 10
-    },
-    images: ["https://example.com/image.jpg"],
+    rating: { average: 4.8, totalReviews: 325 },
+    availability: { inStock: true, quantity: null },
+    images: ["https://example.com/product.jpg"],
     thumbnails: ["https://example.com/thumbnail.jpg"],
-    categories: ["Categoria"],
-    features: {
-        "Característica": "Valor"
-    },
-    specifications: {
-        "Especificação": "Valor"
-    },
-    scrapedAt: new Date().toISOString()
+    categories: ["Computers", "Accessories"],
+    features: { Connection: "Wireless" },
+    specifications: { Color: "Black" },
+    coupons: [{ value: "SAVE10", feature: null }],
+    scrapedAt: new Date().toISOString(),
 }
+
+const validatedProduct = scrapedProductSchema.parse(product)
+
+console.log("Validated product:", validatedProduct.title)
 ```
 
-### Validação de dados
+O schema lança um erro do Zod quando algum campo não obedece ao contrato.
 
-```typescript
-import { scrapedProductSchema, couponSchema, priceSchema, shippingSchema } from "@afilimax/core"
-
-const product = scrapedProductSchema.parse({
-    marketplace: "Amazon",
-    title: "Produto",
-    price: {
-        value: 10,
-        currency: "BRL"
-    },
-    shipping: {
-        price: 2,
-        currency: "BRL",
-        freeShipping: true
-    },
-    rating: {
-        average: 4,
-        totalReviews: 10
-    },
-    availability: {
-        inStock: true,
-        quantity: 10
-    },
-    images: ["https://example.com/image.jpg"],
-    thumbnails: ["https://example.com/thumbnail.jpg"],
-    categories: ["Categoria"],
-    features: {
-        "Característica": "Valor"
-    },
-    specifications: {
-        "Especificação": "Valor"
-    },
-    scrapedAt: new Date().toISOString()
-})
-```
-
-### Provedores de Afiliados
-
-O `AffiliateProvider` é uma classe abstrata fundamental para estender as capacidades de afiliação do ecossistema Afilimax.
+### Criar um provedor de afiliados
 
 ```typescript
 import { AffiliateProvider } from "@afilimax/core"
 
-interface CustomOptions {
+interface CustomProviderOptions {
     trackingId: string
 }
 
-class MyProvider extends AffiliateProvider<CustomOptions> {
-    name = "Meu Provedor"
-    domains = ["loja-exemplo.com.br"]
+class CustomProvider extends AffiliateProvider<CustomProviderOptions> {
+    readonly name = "Custom Store"
+    readonly domains = ["store.example.com"]
 
-    // Implementação obrigatória para gerar o link
-    async createAffiliateUrl(url: string) {
-        return `https://link-afiliado.com?id=${this.options.trackingId}&url=${url}`
+    async createAffiliateUrl(url: string): Promise<string> {
+        const affiliateUrl = new URL(url)
+        affiliateUrl.searchParams.set("tracking_id", this.options.trackingId)
+
+        return affiliateUrl.toString()
     }
 }
 
-const provider = new MyProvider({ trackingId: "user-123" })
+const provider = new CustomProvider({ trackingId: "your-tracking-id" })
+const affiliateUrl = await provider.createAffiliateUrl("https://store.example.com/products/123")
 
-// Verifica se uma URL pertence ao provedor
-if (provider.supportsUrl("https://loja-exemplo.com.br/item")) {
-    const affiliateUrl = await provider.createAffiliateUrl("https://loja-exemplo.com.br/item")
-    console.log(affiliateUrl)
-}
+console.log("Affiliate URL:", affiliateUrl)
 ```
 
-### Gerenciamento de Provedores (Encadeamento)
-
-O `AffiliateManager` permite agrupar múltiplos provedores e encontrar automaticamente o correto para uma determinada URL.
+### Selecionar provedores com AffiliateManager
 
 ```typescript
 import { AffiliateManager } from "@afilimax/core"
 
-const manager = new AffiliateManager([
-    new AmazonProvider(options),
-    new ShopeeProvider(options),
-    new MagaluProvider(options)
-])
-
-// O manager encontrará o provedor correto baseado nos domínios suportados.
-// Caso nenhum provedor suporte a URL, retornará null.
-const url = "https://www.amazon.com.br/dp/B088GHHR6K"
-const affiliateUrl = await manager.createAffiliateUrl(url)
+const manager = new AffiliateManager([provider])
+const affiliateUrl = await manager.createAffiliateUrl("https://store.example.com/products/123")
 
 if (affiliateUrl) {
-    console.log("URL de afiliado:", affiliateUrl)
+    console.log("Affiliate URL:", affiliateUrl)
+} else {
+    console.log("No provider supports this URL")
 }
-
-// Você também pode adicionar novos provedores dinamicamente
-manager.use(new CustomProvider())
 ```
+
+O gerenciador usa o primeiro provedor compatível. O método `use` adiciona outro provedor no início da lista e permite encadear chamadas.
+
+## Configuração
+
+O pacote não exige credenciais nem variáveis de ambiente. As opções específicas ficam nos provedores que estendem `AffiliateProvider`.
+
+O objeto `configHelper.domains` reúne os domínios conhecidos por marketplace:
+
+```typescript
+import { configHelper, Marketplace } from "@afilimax/core"
+
+const amazonDomains = configHelper.domains[Marketplace.Amazon]
+
+console.log("Amazon domains:", amazonDomains)
+```
+
+## Referência da API
+
+### Contratos de dados
+
+| Exportação | Finalidade |
+| :--- | :--- |
+| `ScrapedProduct` | Produto completo extraído de um marketplace. |
+| `ScrapedProductPreview` | Resultado resumido de uma pesquisa de produtos. |
+| `Price` | Preço atual, preço original, valor no Pix e parcelamento. |
+| `Shipping` | Valor, moeda e características do frete. |
+| `Coupon` | Código do cupom e característica opcional associada. |
+| `Marketplace` | Identificadores dos marketplaces conhecidos. |
+
+Os schemas `scrapedProductSchema`, `priceSchema`, `shippingSchema` e `couponSchema` validam os respectivos contratos com Zod.
+
+### `AffiliateProvider<TOptions>`
+
+Classe abstrata para provedores de afiliados.
+
+| Membro | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `name` | `string` | Nome do provedor; deve ser implementado pela subclasse. |
+| `domains` | `string[]` | Domínios aceitos; deve ser implementado pela subclasse. |
+| `supportsUrl(url)` | `boolean` | Verifica o hostname e seus subdomínios. |
+| `createAffiliateUrl(url)` | `Promise<string>` | Gera o link; deve ser implementado pela subclasse. |
+
+`supportsUrl` usa o construtor `URL` do JavaScript e, portanto, espera uma URL válida.
+
+### `AffiliateManager`
+
+| Método | Retorno | Descrição |
+| :--- | :--- | :--- |
+| `new AffiliateManager(providers)` | `AffiliateManager` | Recebe a lista inicial de provedores. |
+| `findProvider(url)` | `AffiliateProvider \| undefined` | Retorna o primeiro provedor compatível. |
+| `createAffiliateUrl(url)` | `Promise<string \| null>` | Gera o link ou retorna `null` sem provedor compatível. |
+| `use(provider)` | `AffiliateManager` | Insere o provedor no início da lista e retorna o gerenciador. |
+
+### Validadores de URL
+
+`isValidProductUrl(url)` verifica os padrões conhecidos de Amazon, AliExpress, Shopee, Terabyte, KaBuM!, Pichau, Temu, Magazine Luiza e Americanas. Também são exportados validadores individuais, como `isAmazonProductUrl` e `isAliExpressProductUrl`.
+
+```typescript
+import { isAmazonProductUrl, isValidProductUrl } from "@afilimax/core"
+
+const url = "https://www.amazon.com.br/dp/B0D1VHJVS9/"
+
+console.log("Amazon product:", isAmazonProductUrl(url))
+console.log("Known product URL:", isValidProductUrl(url))
+```
+
+## Desenvolvimento
+
+Instale as dependências com `npm install`. Os scripts disponíveis são:
+
+| Comando | Finalidade |
+| :--- | :--- |
+| `npm run dev` | Executa `src/index.ts` com `ts-node`. |
+| `npm run build` | Compila o TypeScript para `dist/`. |
+| `npm test` | Executa os testes uma vez com Vitest. |
+| `npm run test:watch` | Executa os testes em modo de observação. |
+| `npm run test:cov` | Executa os testes com cobertura. |
+| `npm run lint` | Executa o ESLint com correção automática. |
+| `npm run format` | Formata os arquivos de `src/` com Prettier. |
 
 ## Licença
 
-Este projeto está sob a licença MIT.
+Distribuído sob a licença [MIT](./LICENSE).
 
 ---
 
